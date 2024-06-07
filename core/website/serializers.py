@@ -203,11 +203,13 @@ class DecryptionAESSerializer(serializers.Serializer):
 
     def encrypt(self):
         try:
-            return encryption.aes_decrypt(
-                ct=self.validated_data["cipher"],
-                key=self.validated_data["key"],
-                iv=self.validated_data["initialization_vector"],
-            )
+            return {
+                "plain_text": encryption.aes_decrypt(
+                    ct=self.validated_data["cipher"],
+                    key=self.validated_data["key"],
+                    iv=self.validated_data["initialization_vector"],
+                )
+            }
         except:
             raise CustomException(
                 "مقادیر داده شده درست نمیباشد",
@@ -228,11 +230,13 @@ class EncryptionDESSerializer(EncryptionAESSerializer):
 class DecryptionDESSerializer(DecryptionAESSerializer):
     def encrypt(self):
         try:
-            return encryption.des_decrypt(
-                ct=self.validated_data["cipher"],
-                key=self.validated_data["key"],
-                iv=self.validated_data["initialization_vector"],
-            )
+            return {
+                "plain_text": encryption.des_decrypt(
+                    ct=self.validated_data["cipher"],
+                    key=self.validated_data["key"],
+                    iv=self.validated_data["initialization_vector"],
+                )
+            }
         except:
             raise CustomException(
                 "مقادیر داده شده درست نمیباشد",
@@ -266,10 +270,12 @@ class DecryptionElgamalSerializer(serializers.Serializer):
         try:
             private_key = [int(item) for item in self.validated_data["private_key"].split(", ")]
             cipher = [int(item) for item in self.validated_data["cipher"].split(", ")]
-            return encryption.elgamal_decrypt(
-                private_key=private_key,
-                ciphertext=cipher
-            )
+            return {
+                "plain_text": encryption.elgamal_decrypt(
+                    private_key=private_key,
+                    ciphertext=cipher
+                )
+            }
         except:
             raise CustomException(
                 "مقادیر داده شده درست نمیباشد",
@@ -296,10 +302,12 @@ class DecryptionRSASerializer(DecryptionElgamalSerializer):
     def encrypt(self):
         try:
             private=RSA.import_key(self.validated_data["private_key"])
-            return encryption.rsa_decrypt(
-                private_key=private,
-                ciphertext=self.validated_data["cipher"]
-            )
+            return {
+                "plain_text": encryption.rsa_decrypt(
+                    private_key=private,
+                    ciphertext=self.validated_data["cipher"]
+                )
+            }
         except:
             raise CustomException(
                 "مقادیر داده شده درست نمیباشد",
@@ -313,23 +321,29 @@ class EncryptionHMACMD5Serializer(serializers.Serializer):
     key = serializers.CharField(required=True)
 
     def encrypt(self):
-        return encryption.calculate_hmac_md5(
-            key=self.validated_data["key"],
-            message=self.validated_data["string"]
-        )
+        return {
+            "cipher": encryption.calculate_hmac_md5(
+                key=self.validated_data["key"],
+                message=self.validated_data["string"]
+            )
+        }
 
 
 class EncryptionHMACSHA1Serializer(EncryptionHMACMD5Serializer):
     def encrypt(self):
-        return encryption.calculate_hmac_sha1(
-            key=self.validated_data["key"],
-            message=self.validated_data["string"]
-        )
+        return {
+            "cipher": encryption.calculate_hmac_sha1(
+                key=self.validated_data["key"],
+                message=self.validated_data["string"]
+            )
+        }
         
         
 class EncryptionHMACSHA256Serializer(EncryptionHMACMD5Serializer):
     def encrypt(self):
-        return encryption.calculate_hmac_sha256(
-            key=self.validated_data["key"],
-            message=self.validated_data["string"]
-        )
+        return {
+            "cipher":encryption.calculate_hmac_sha256(
+                key=self.validated_data["key"],
+                message=self.validated_data["string"]
+            )
+        }
