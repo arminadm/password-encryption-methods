@@ -7,6 +7,7 @@ from website.tools.encryption import encrypt_string_sha1, encrypt_string_md5
 from website.tools.auth import RedisAuthenticationService
 from django.contrib.auth.password_validation import validate_password
 import re
+from website.tools import encryption
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -157,3 +158,113 @@ class LoginStep2Serializer(serializers.Serializer):
                 "detail",
                 status_code=status.HTTP_400_BAD_REQUEST
             )
+            
+            
+class EncryptionSHA1Serializer(serializers.Serializer):
+    string = serializers.CharField(required=True)
+    
+    def encrypt(self):
+        return {
+            "cipher": encryption.encrypt_string_sha1(self.validated_data["string"])
+        }
+        
+
+class EncryptionSHA2Serializer(EncryptionSHA1Serializer):
+    def encrypt(self):
+        return {
+            "cipher": encryption.encrypt_string_sha2(self.validated_data["string"])
+        }    
+                
+
+class EncryptionMD5Serializer(EncryptionSHA1Serializer):
+    def encrypt(self):
+        return {
+            "cipher": encryption.encrypt_string_md5(self.validated_data["string"])
+        }
+        
+
+class EncryptionAESSerializer(serializers.Serializer):
+    string = serializers.CharField(required=True)
+    key = serializers.CharField(required=True)
+
+    def encrypt(self):
+        iv, ct = encryption.aes_encrypt(
+            data=self.validated_data["string"],
+            key=self.validated_data["key"]
+        )
+        return {"iv": iv, "cipher": ct}
+
+
+class DecryptionAESSerializer(serializers.Serializer):
+    key = serializers.CharField(required=True)
+    initialization_vector = serializers.CharField(required=True)
+    cipher = serializers.CharField(required=True)
+
+    def encrypt(self):
+        try:
+            return encryption.aes_decrypt(
+                ct=self.validated_data["cipher"],
+                key=self.validated_data["key"],
+                iv=self.validated_data["initialization_vector"],
+            )
+        except:
+            raise CustomException(
+                "مقادیر داده شده درست نمیباشد",
+                "detail",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+            
+
+class EncryptionDESSerializer(EncryptionAESSerializer):
+    def encrypt(self):
+        iv, ct = encryption.des_encrypt(
+            data=self.validated_data["string"],
+            key=self.validated_data["key"]
+        )
+        return {"iv": iv, "cipher": ct}
+
+            
+class DecryptionDESSerializer(DecryptionAESSerializer):
+    def encrypt(self):
+        try:
+            return encryption.des_decrypt(
+                ct=self.validated_data["cipher"],
+                key=self.validated_data["key"],
+                iv=self.validated_data["initialization_vector"],
+            )
+        except:
+            raise CustomException(
+                "مقادیر داده شده درست نمیباشد",
+                "detail",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+    
+
+class EncryptionElgamalSerializer(EncryptionAESSerializer):
+    def encrypt(self):
+        private_key, public_key = encryption.generate_elgamal_keys()
+        cipher = encryption.elgamal_encrypt(
+            public_key=public_key, 
+            data=self.validated_data["string"]
+        )
+        private_key = f"{private_key[0]}, {private_key[1]}, {private_key[2]}"
+        public_key = f"{public_key[0]}, {public_key[1]}, {public_key[2]}"
+        cipher = f"{cipher[0]}, {cipher[1]}"
+        return {
+            "private_key": private_key,
+            "public_key": public_key,
+            "cipher": cipher
+        }
+    
+
+class DecryptionElgamalSerializer(serializers.Serializer):
+    cipher = serializers.CharField(required=True)
+    private_key = serializers.CharField(required=True)
+    
+    def encrypt(self):
+        private_key = [int(item) for item in self.validated_data["private_key"].split(", ")]
+        cipher = [int(item) for item in self.validated_data["cipher"].split(", ")]
+        return encryption.elgamal_decrypt(
+            private_key=private_key,
+            ciphertext=cipher
+        )

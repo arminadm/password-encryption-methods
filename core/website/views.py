@@ -1,10 +1,15 @@
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from core.settings import PASS_SALT
-from .serializers import SignupSerializer, LoginStep1Serializer, LoginStep2Serializer
 from website.tools.auth import generate_jwt_for
+from .serializers import (
+    SignupSerializer, LoginStep1Serializer, LoginStep2Serializer,
+    EncryptionSHA1Serializer, EncryptionSHA2Serializer, EncryptionMD5Serializer,
+    EncryptionAESSerializer, DecryptionAESSerializer, EncryptionDESSerializer,
+    DecryptionDESSerializer, EncryptionElgamalSerializer, DecryptionElgamalSerializer
+)
 
 
 # Create your views here.
@@ -45,4 +50,46 @@ class LoginStep2View(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         result = serializer.check_credentials()
         return Response(result, status=status.HTTP_200_OK)
+    
+
+class EncryptionSHA1View(GenericAPIView):
+    serializer_class = EncryptionSHA1Serializer
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        cipher = serializer.encrypt()
+        return Response({"result": cipher}, status=status.HTTP_200_OK)
+    
+
+class EncryptionSHA2View(EncryptionSHA1View):
+    serializer_class = EncryptionSHA2Serializer
         
+
+class EncryptionMD5View(EncryptionSHA1View):
+    serializer_class = EncryptionMD5Serializer
+    
+
+class EncryptionAESView(EncryptionSHA1View):
+    serializer_class = EncryptionAESSerializer
+    
+
+class DecryptionAESView(EncryptionSHA1View):
+    serializer_class = DecryptionAESSerializer
+    
+    
+class EncryptionDESView(EncryptionAESView):
+    serializer_class = EncryptionDESSerializer
+    
+
+class DecryptionDESView(DecryptionAESView):
+    serializer_class = DecryptionDESSerializer
+    
+    
+class EncryptionElgamalView(EncryptionSHA1View):
+    serializer_class = EncryptionElgamalSerializer
+    
+    
+class DecryptionElgamalView(EncryptionSHA1View):
+    serializer_class = DecryptionElgamalSerializer
