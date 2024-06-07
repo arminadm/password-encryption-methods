@@ -4,7 +4,8 @@ from .views import (
    EncryptionSHA1View, EncryptionSHA2View, EncryptionMD5View,
    EncryptionAESView, DecryptionAESView, EncryptionDESView,
    DecryptionDESView, EncryptionElgamalView, DecryptionElgamalView,
-   EncryptionRSAView
+   EncryptionRSAView, DecryptionRSAView,
+   EncryptionHMACMD5View, EncryptionHMACSHA1View, EncryptionHMACSHA256View
 )
 
 
@@ -27,4 +28,9 @@ urlpatterns = [
    path("elgamal/decryption/", DecryptionElgamalView.as_view(), name="decryption-elgamal"),
    
    path("rsa/encryption/", EncryptionRSAView.as_view(), name="encryption-rsa"),
+   path("rsa/decryption/", DecryptionRSAView.as_view(), name="decryption-rsa"),
+   
+   path("hmac/md5/encryption/", EncryptionHMACMD5View.as_view(), name="encryption-hmac-md5"),
+   path("hmac/sha1/encryption/", EncryptionHMACSHA1View.as_view(), name="encryption-hmac-sha1"),
+   path("hmac/sha256/encryption/", EncryptionHMACSHA256View.as_view(), name="encryption-hmac-sha256"),
 ]

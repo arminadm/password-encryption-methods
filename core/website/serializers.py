@@ -8,6 +8,7 @@ from website.tools.auth import RedisAuthenticationService
 from django.contrib.auth.password_validation import validate_password
 import re
 from website.tools import encryption
+from Crypto.PublicKey import RSA
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -262,12 +263,19 @@ class DecryptionElgamalSerializer(serializers.Serializer):
     private_key = serializers.CharField(required=True)
     
     def encrypt(self):
-        private_key = [int(item) for item in self.validated_data["private_key"].split(", ")]
-        cipher = [int(item) for item in self.validated_data["cipher"].split(", ")]
-        return encryption.elgamal_decrypt(
-            private_key=private_key,
-            ciphertext=cipher
-        )
+        try:
+            private_key = [int(item) for item in self.validated_data["private_key"].split(", ")]
+            cipher = [int(item) for item in self.validated_data["cipher"].split(", ")]
+            return encryption.elgamal_decrypt(
+                private_key=private_key,
+                ciphertext=cipher
+            )
+        except:
+            raise CustomException(
+                "مقادیر داده شده درست نمیباشد",
+                "detail",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
         
 
 class EncryptionRSASerializer(EncryptionAESSerializer):
@@ -277,12 +285,51 @@ class EncryptionRSASerializer(EncryptionAESSerializer):
             public_key=public_key, 
             data=self.validated_data["string"]
         )
-        # private_key = f"{private_key[0]}, {private_key[1]}, {private_key[2]}"
-        # public_key = f"{public_key[0]}, {public_key[1]}, {public_key[2]}"
-        # cipher = f"{cipher[0]}, {cipher[1]}"
         return {
-            "private_key": private_key,
-            "public_key": public_key,
-            "cipher": cipher
+            "private_key": private_key.export_key().decode("utf-8"),
+            "public_key": public_key.export_key().decode("utf-8"),
+            "cipher": str(cipher)
         }
+
+
+class DecryptionRSASerializer(DecryptionElgamalSerializer):
+    def encrypt(self):
+        try:
+            private=RSA.import_key(self.validated_data["private_key"])
+            return encryption.rsa_decrypt(
+                private_key=private,
+                ciphertext=self.validated_data["cipher"]
+            )
+        except:
+            raise CustomException(
+                "مقادیر داده شده درست نمیباشد",
+                "detail",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
         
+class EncryptionHMACMD5Serializer(serializers.Serializer):
+    string = serializers.CharField(required=True)
+    key = serializers.CharField(required=True)
+
+    def encrypt(self):
+        return encryption.calculate_hmac_md5(
+            key=self.validated_data["key"],
+            message=self.validated_data["string"]
+        )
+
+
+class EncryptionHMACSHA1Serializer(EncryptionHMACMD5Serializer):
+    def encrypt(self):
+        return encryption.calculate_hmac_sha1(
+            key=self.validated_data["key"],
+            message=self.validated_data["string"]
+        )
+        
+        
+class EncryptionHMACSHA256Serializer(EncryptionHMACMD5Serializer):
+    def encrypt(self):
+        return encryption.calculate_hmac_sha256(
+            key=self.validated_data["key"],
+            message=self.validated_data["string"]
+        )

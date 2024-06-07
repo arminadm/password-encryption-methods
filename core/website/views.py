@@ -9,7 +9,8 @@ from .serializers import (
     EncryptionSHA1Serializer, EncryptionSHA2Serializer, EncryptionMD5Serializer,
     EncryptionAESSerializer, DecryptionAESSerializer, EncryptionDESSerializer,
     DecryptionDESSerializer, EncryptionElgamalSerializer, DecryptionElgamalSerializer,
-    EncryptionRSASerializer
+    EncryptionRSASerializer, EncryptionHMACMD5Serializer, EncryptionHMACSHA1Serializer,
+    EncryptionHMACSHA256Serializer, DecryptionRSASerializer
 )
 
 
@@ -98,4 +99,19 @@ class DecryptionElgamalView(EncryptionSHA1View):
 
 class EncryptionRSAView(EncryptionSHA1View):
     serializer_class = EncryptionRSASerializer
+    
+class DecryptionRSAView(DecryptionElgamalView):
+    serializer_class = DecryptionRSASerializer
+    
+
+class EncryptionHMACMD5View(EncryptionSHA1View):
+    serializer_class = EncryptionHMACMD5Serializer
+   
+   
+class EncryptionHMACSHA1View(EncryptionSHA1View):
+    serializer_class = EncryptionHMACSHA1Serializer
+    
+    
+class EncryptionHMACSHA256View(EncryptionSHA1View):
+    serializer_class = EncryptionHMACSHA256Serializer
     
