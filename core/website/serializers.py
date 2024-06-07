@@ -99,7 +99,7 @@ class LoginStep2Serializer(serializers.Serializer):
         # check challenge token
         redis = RedisAuthenticationService()
         if challenge_token := redis.get_phone_challenge_token(
-            self.validated_data["phone"]
+            self.initial_data["phone"]
         ):
             self.challenge_token = challenge_token
         else:
@@ -111,7 +111,7 @@ class LoginStep2Serializer(serializers.Serializer):
         
         # get user instance by phone number
         try:
-            user = User.objects.get(phone=self.validated_data["phone"])
+            user = User.objects.get(phone=self.initial_data["phone"])
         except User.DoesNotExist:
             raise CustomException(
                 "کاربری با شماره داده شده یافت نشد",
