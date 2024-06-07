@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-^9ntj0a%r#ddt$3ju98ahi-qg&@w&3$v^od5^5)(@h6#-plf!y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["79.175.189.158"]
 
 
 # Application definition
@@ -159,7 +159,7 @@ PASS_SALT = config("PASS_SALT", default="DO-NOT-CHANGE-ENV")
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/',  
+        'LOCATION': 'redis://redis:6370/',  
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         },
