@@ -161,7 +161,7 @@ PASS_SALT = config("PASS_SALT", default="DO-NOT-CHANGE-ENV")
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6370/',  
+        'LOCATION': 'redis://redis:6379/',  
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         },
