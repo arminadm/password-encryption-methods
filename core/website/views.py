@@ -8,7 +8,8 @@ from .serializers import (
     SignupSerializer, LoginStep1Serializer, LoginStep2Serializer,
     EncryptionSHA1Serializer, EncryptionSHA2Serializer, EncryptionMD5Serializer,
     EncryptionAESSerializer, DecryptionAESSerializer, EncryptionDESSerializer,
-    DecryptionDESSerializer, EncryptionElgamalSerializer, DecryptionElgamalSerializer
+    DecryptionDESSerializer, EncryptionElgamalSerializer, DecryptionElgamalSerializer,
+    EncryptionRSASerializer
 )
 
 
@@ -93,3 +94,8 @@ class EncryptionElgamalView(EncryptionSHA1View):
     
 class DecryptionElgamalView(EncryptionSHA1View):
     serializer_class = DecryptionElgamalSerializer
+    
+
+class EncryptionRSAView(EncryptionSHA1View):
+    serializer_class = EncryptionRSASerializer
+    

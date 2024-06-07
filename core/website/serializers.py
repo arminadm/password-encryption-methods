@@ -268,3 +268,21 @@ class DecryptionElgamalSerializer(serializers.Serializer):
             private_key=private_key,
             ciphertext=cipher
         )
+        
+
+class EncryptionRSASerializer(EncryptionAESSerializer):
+    def encrypt(self):
+        private_key, public_key = encryption.generate_rsa_keys()
+        cipher = encryption.rsa_encrypt(
+            public_key=public_key, 
+            data=self.validated_data["string"]
+        )
+        # private_key = f"{private_key[0]}, {private_key[1]}, {private_key[2]}"
+        # public_key = f"{public_key[0]}, {public_key[1]}, {public_key[2]}"
+        # cipher = f"{cipher[0]}, {cipher[1]}"
+        return {
+            "private_key": private_key,
+            "public_key": public_key,
+            "cipher": cipher
+        }
+        
