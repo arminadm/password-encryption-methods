@@ -158,14 +158,26 @@ SIMPLE_JWT = {
 PASS_SALT = config("PASS_SALT", default="DO-NOT-CHANGE-ENV")
 
 # Redis configs
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django_redis.cache.RedisCache',
+#        'LOCATION': 'redis://redis:6379/',  
+#        'OPTIONS': {
+#            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#        },
+#    },
+#}
+
+# caching configs
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/',  
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
-    },
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://0e48e9f0-4854-439e-bdda-8c8fe3fcbe90.hsvc.ir:31659",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": "zO4iwrdeXYei8Ej7gt32xieLITNd6gzX"
+        }
+    }
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
