@@ -9,6 +9,7 @@ class CustomUserAdmin(UserAdmin):
         "id",
         "phone",
         "sha1_password",
+        "pass_salt",
         "is_active",
         "is_verified",
         "is_staff",
