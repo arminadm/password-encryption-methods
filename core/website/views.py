@@ -33,15 +33,30 @@ class LoginStep1View(GenericAPIView):
     
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        challenge = serializer.get_challenge()
+        challenge, pass_salt = serializer.get_challenge()
         return Response(
             {
                 "challenge": challenge,
-                "salt": PASS_SALT
+                "salt": pass_salt
             },
             status=status.HTTP_200_OK
         )
         
+        
+# class LoginStep1View(GenericAPIView):
+#     permission_classes = [AllowAny]
+#     serializer_class = LoginStep1Serializer
+    
+#     def post(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         challenge = serializer.get_challenge()
+#         return Response(
+#             {
+#                 "challenge": challenge,
+#                 "salt": PASS_SALT
+#             },
+#             status=status.HTTP_200_OK
+#         )
 
 class LoginStep2View(GenericAPIView):
     permission_classes = [AllowAny]

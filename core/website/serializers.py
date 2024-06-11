@@ -1,3 +1,4 @@
+from datetime import datetime
 from core.settings import PASS_SALT
 from rest_framework import serializers, status
 from website.models import User
@@ -54,16 +55,32 @@ class SignupSerializer(serializers.ModelSerializer):
             
         return super().validate(attrs)
     
+    # def create(self, validated_data):
+    #     # hash the password using salt
+    #     encrypt_pass = encrypt_string_sha1(
+    #         validated_data["password"] + PASS_SALT
+    #     )
+        
+    #     return User.objects.create(
+    #         phone=validated_data["phone"],
+    #         sha1_password=encrypt_pass,
+    #     )
+
     def create(self, validated_data):
+        # create salt
+        pass_salt = encrypt_string_sha1(validated_data["phone"]+str(datetime.now()))
+        
         # hash the password using salt
         encrypt_pass = encrypt_string_sha1(
-            validated_data["password"] + PASS_SALT
+            validated_data["password"] + pass_salt
         )
         
         return User.objects.create(
             phone=validated_data["phone"],
             sha1_password=encrypt_pass,
+            pass_salt=pass_salt,
         )
+    
 
 
 class LoginStep1Serializer(serializers.ModelSerializer):
@@ -72,10 +89,28 @@ class LoginStep1Serializer(serializers.ModelSerializer):
         fields = ["phone"]
 
 
+    # def get_challenge(self):
+    #     # check if the given phone already exists
+    #     phone = self.initial_data["phone"]
+    #     if not User.objects.filter(phone=phone).exists():
+    #         raise CustomException(
+    #             "این شماره قبلا ثبت نام نشده است",
+    #             "detail",
+    #             status_code=status.HTTP_404_NOT_FOUND
+    #         )
+        
+    #     redis = RedisAuthenticationService()
+    #     challenge_token = redis.set_phone_challenge_token(
+    #         phone=phone
+    #     )
+    #     return challenge_token
+    
+    
     def get_challenge(self):
         # check if the given phone already exists
         phone = self.initial_data["phone"]
-        if not User.objects.filter(phone=phone).exists():
+        user = User.objects.filter(phone=phone)
+        if not user.exists():
             raise CustomException(
                 "این شماره قبلا ثبت نام نشده است",
                 "detail",
@@ -86,7 +121,7 @@ class LoginStep1Serializer(serializers.ModelSerializer):
         challenge_token = redis.set_phone_challenge_token(
             phone=phone
         )
-        return challenge_token
+        return challenge_token, user[0].pass_salt
     
     
 class LoginStep2Serializer(serializers.Serializer):

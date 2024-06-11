@@ -63,6 +63,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Data
     phone = models.BigIntegerField(unique=True, null=False, blank=False)
     sha1_password = models.CharField(max_length=200, null=False, blank=False)
+    pass_salt = models.CharField(max_length=200, null=False, blank=False)
     
     # Django required fields
     is_active = models.BooleanField(default=True)
