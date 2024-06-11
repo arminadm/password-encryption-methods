@@ -68,7 +68,7 @@ class SignupSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # create salt
-        pass_salt = encrypt_string_sha1(validated_data["phone"]+str(datetime.now()))
+        pass_salt = encrypt_string_sha1(str(validated_data["phone"])+str(datetime.now()))
         
         # hash the password using salt
         encrypt_pass = encrypt_string_sha1(
